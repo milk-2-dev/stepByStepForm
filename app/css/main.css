@@ -336,7 +336,7 @@ input {
   .input_block:last-child {
     margin-bottom: 0; }
 
-.input_validation ~ .invalid-feedback {
+.input_validated ~ .invalid-feedback {
   display: none;
   font-size: 12px;
   font-family: sans-serif;
@@ -344,9 +344,9 @@ input {
   position: absolute;
   bottom: -20px; }
 
-.input_validation.is-invalid {
+.input_validated.is-invalid {
   border-color: red; }
-  .input_validation.is-invalid ~ .invalid-feedback {
+  .input_validated.is-invalid ~ .invalid-feedback {
     display: block; }
 
 @-webkit-keyframes wobble {

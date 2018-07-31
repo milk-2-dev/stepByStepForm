@@ -7,11 +7,10 @@
   window.controllerBase = self;
 
   /*
-   *  Constants
+   *  Fields
    */
 
   var currentTab = 0;
-
 
   /*
    *  Events
@@ -20,76 +19,122 @@
   function onLoad() {
     showStep(currentTab);
 
+    initInputValidation();
+
     cloneDataFromJson();
   }
 
-  function onClickFormControls(){
-    $('#next_step').on('click', function() {
-      onClickButtonNext()
+  $(window).ready(onLoad());
+
+  /*
+   * Events
+   */
+
+  self.onClickStepControllButton = function(step){
+    var allFormSteps = $(".steps_form_item");
+
+    //todo: will be better if 'formStepInputs' was an array
+    var formStepInputs = $(".steps_form_item.active").find('.input_validated')
+
+    var test = isValidInputs(formStepInputs)
+
+    if (!test) return false;
+
+    $(allFormSteps[currentTab]).removeClass("active");
+
+    currentTab = currentTab + step;
+
+    if (currentTab >= allFormSteps.length) {
+
+      $("#form").submit();
+      return false;
+    }
+
+    showStep(currentTab);
+  }
+
+  function initInputValidation(){
+    var $input = $('.input_validated')
+
+    $input.on('focus', function(e){
+      $(e.target).removeClass('is-invalid')
     })
 
-    $('#prev_step').on('click', function() {
-      onClickButtonPrev()
+    $input.on('blur', function(e){
+      validateInput(e.target)
     })
   }
 
-  //function onClickButtonNext() {
-  //  var stepsProgressBar = $('.steps_progress_bar');
-  //  var activeProgressStep = stepsProgressBar.find('.steps_progress_bar_item.active');
-  //  var nextProgressStep = activeProgressStep.next('.steps_progress_bar_item');
-  //
-  //  var stepsFormStage = $('.steps_form_stage');
-  //  var activeFormStep = stepsFormStage.find('.steps_form_item.active');
-  //  var nextFormStep = activeFormStep.next('.steps_form_item');
-  //
-  //  var formsStage = $('.steps_form_stage');
-  //  var formsStageCurrentTranslate = parseInt(formsStage.css('transform').split(',')[4]);
-  //  var nextFormStepWidth = nextFormStep.width();
-  //  var resultTransform = null
-  //
-  //  debugger
-  //
-  //  if(isNaN(formsStageCurrentTranslate)){
-  //    resultTransform = -1*(nextFormStepWidth)
-  //  }
-  //  else{
-  //    resultTransform = formsStageCurrentTranslate - nextFormStepWidth
-  //  }
-  //
-  //
-  //  if(nextFormStep.length > 0){
-  //    formsStage.css({'transform' : 'translate('+ resultTransform +'px, 0)'});
-  //    activeFormStep.removeClass('active');
-  //    nextFormStep.addClass('active');
-  //
-  //    activeProgressStep.removeClass('active');
-  //    activeProgressStep.addClass('done');
-  //    nextProgressStep.addClass('active');
-  //  }
-  //}
-  //
-  //function onClickButtonPrev() {
-  //  var stepsProgressBar = $('.steps_progress_bar');
-  //  var activeProgressStep = stepsProgressBar.find('.steps_progress_bar_item.active');
-  //  var prevProgressStep = activeProgressStep.prev('.steps_progress_bar_item');
-  //
-  //
-  //  var stepsFormStage = $('.steps_form_stage');
-  //  var activeFormStep = stepsFormStage.find('.steps_form_item.active');
-  //  var prevFormStep = activeFormStep.prev('.steps_form_item');
-  //
-  //  if(prevFormStep.length > 0){
-  //    activeFormStep.removeClass('active');
-  //    prevFormStep.addClass('active');
-  //
-  //    activeProgressStep.removeClass('active');
-  //    prevProgressStep.removeClass('done');
-  //    prevProgressStep.addClass('active');
-  //  }
-  //}
+  function isValidInputs(inputsInStep){
+    var isValid = true
 
 
-  $(window).ready(onLoad());
+    for (var i = 0; i < inputsInStep.length; i++) {
+      var $item = $(inputsInStep[i])
+      var test = validateInput($item)
+
+      if(!test){
+        isValid = false
+      }
+    }
+    return isValid
+  }
+
+  function validateInput(input){
+    var $input = $(input)
+    var validType = ''
+    var minValue = ''
+    var maxValue = ''
+    var $targetInput = ''
+    var message = ""
+    var validationResult = true
+
+    if($input.attr('data-validation-type')){
+      validType = $input.attr('data-validation-type')
+      minValue = +$input.attr('data-min-value')
+      maxValue = +$input.attr('data-max-value')
+    }
+
+    var inputValue = +$input.val()
+
+    if(inputValue == ""){
+      message = "This field is required"
+      validationResult = false
+
+      validationNotification(false, input, message)
+      return
+    }
+
+    if(validType == "number" && inputValue != ""){
+      if(isNaN(inputValue)){
+        message = "The value of this field must be a number"
+        validationResult = false
+        validationNotification(false, $targetInput, message)
+        return
+      }
+    }
+
+    if(inputValue < minValue || inputValue > maxValue){
+      message = "The value of this field must be less then "+ maxValue +" and more then "+ minValue +""
+
+      validationResult = false
+      validationNotification(false, $targetInput, message)
+      return
+    }
+
+    return validationResult
+  }
+
+  function validationNotification(result, input, massage){
+    var $input = $(input)
+    if(result){
+      return
+    }
+
+    $input.val('')
+    $input.addClass('is-invalid')
+    $input.parent().find('.invalid-feedback').text(massage)
+  }
 
   /*
    * Methods
@@ -120,7 +165,7 @@
     showCloneModal(modal);
   }
 
-
+  //private
   function showStep(step) {
     var stepsStage = $('.steps_form_stage');
     var allFormSteps = $('.steps_form_item');
@@ -151,30 +196,8 @@
     }
   }
 
-  self.onClickStepControllButton = function(step){
-    // This function will figure out which tab to display
-    var allFormSteps = $(".steps_progress_bar_item");
-
-    // Exit the function if any field in the current tab is invalid:
-    if (step == 1 && !validateForm()) return false;
-    // Hide the current tab:
-    $(allFormSteps[currentTab]).removeClass("active");
-
-    // Increase or decrease the current tab by 1:
-    currentTab = currentTab + step;
-
-    // if you have reached the end of the form...
-    if (currentTab >= allFormSteps.length) {
-      // ... the form gets submitted:
-      $("#form").submit();
-      return false;
-    }
-
-    // Otherwise, display the correct tab:
-    showStep(currentTab);
-  }
-
   function validateForm() {
+
     // This function deals with validation of the form fields
     var valid = true;
     var allFormSteps = $(".steps_form_item");
@@ -199,7 +222,12 @@
     var allProgressBarSteps = $(".steps_progress_bar_item");
 
     for (var i = 0; i < allProgressBarSteps.length; i++) {
+
       $(allProgressBarSteps[i]).removeClass("active");
+
+      if(i < step){
+        $(allProgressBarSteps[i]).addClass("done");
+      }
     }
 
     $(allProgressBarSteps[step]).addClass("active");

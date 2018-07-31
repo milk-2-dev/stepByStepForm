@@ -53,14 +53,23 @@
                                 <div class="steps_form_item active">
                                     <div class="form_group">
                                         <div class="input_block">
-                                            <input class="input_validation" type="text" placeholder="Enter you sum" required>
+                                            <input class="input_validated"
+                                                   type="text"
+                                                   placeholder="Enter you sum"
+                                                   required
+                                                   data-validation-type="number"
+                                                   data-min-value="1"
+                                                   data-max-value="10000">
                                             <div class="invalid-feedback">
                                                 This field is required and must be only a number
                                             </div>
                                         </div>
 
                                         <div class="input_block">
-                                            <input class="input_validation" type="text" placeholder="Enter date" required>
+                                            <input class="input_validated" type="text" placeholder="Enter date" required
+                                                   data-validation-type="number"
+                                                   data-min-value="1"
+                                                   data-max-value="10000">
                                             <div class="invalid-feedback">
                                                 This field is required and must be only a number
                                             </div>
