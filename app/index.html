@@ -28,18 +28,18 @@
             </h1>
 
             <div class="form_wrapper">
-                <ol class="steps_bar">
-                    <li class="steps_bar_item active">
+                <ol class="steps_progress_bar">
+                    <li class="steps_progress_bar_item active">
                         <span class="step_number">
                           1
                         </span>
                     </li>
-                    <li class="steps_bar_item">
+                    <li class="steps_progress_bar_item">
                         <span class="step_number">
                           2
                         </span>
                     </li>
-                    <li class="steps_bar_item">
+                    <li class="steps_progress_bar_item">
                         <span class="step_number">
                           3
                         </span>
@@ -47,9 +47,9 @@
                 </ol>
 
                 <div class="steps_form_container">
-                    <form action="">
+                    <form id="form" action="">
                         <div class="steps_form_stage-outer">
-                            <div class="steps_form-stage">
+                            <div class="steps_form_stage">
                                 <div class="steps_form_item active">
                                     <div class="form_group">
                                         <div class="input_block">
@@ -98,8 +98,8 @@
                     </form>
 
                     <div class="steps_form_controls">
-                        <button class="button bg_green" id="prev_step">previous step</button>
-                        <button class="button bg_green" id="next_step">next step</button>
+                        <button class="button bg_green" id="prev_step" onclick="controllerBase.onClickStepControllButton(-1)">previous step</button>
+                        <button class="button bg_green" id="next_step" onclick="controllerBase.onClickStepControllButton(1)">next step</button>
                     </div>
                 </div>
             </div>
