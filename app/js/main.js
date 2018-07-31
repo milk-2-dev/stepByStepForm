@@ -177,14 +177,13 @@
   function validateForm() {
     // This function deals with validation of the form fields
     var valid = true;
-    var allFormSteps = $(".steps_progress_bar_item");
+    var allFormSteps = $(".steps_form_item");
     var stepItemInputs = $(allFormSteps[currentTab]).find("input");
     // A loop that checks every input field in the current tab:
     for (var i = 0; i < stepItemInputs.length; i++) {
-      // If a field is empty...
-      if (stepItemInputs[i].value == "") {
+      if (stepItemInputs[i].required && stepItemInputs[i].value == "") {
         // add an "invalid" class to the field:
-        $(stepItemInputs[i]).addClass("invalid");
+        $(stepItemInputs[i]).addClass("is-invalid");
         // and set the current valid status to false
         valid = false;
       }
