@@ -217,6 +217,26 @@
     return result
   }
 
+  function isAdulthood(value){
+    var result = true
+    var currentDate = new Date();
+    var currentYear = currentDate.getFullYear();
+    var valueToString = ''+value
+    var innDayCount = valueToString.substring(0, 5) * 1 - 1;
+    var startDate = new Date(1900,00,01);
+    startDate.setDate(startDate.getDate() + innDayCount);
+
+    var birthYear = startDate.getFullYear()
+    var userYears = currentYear - birthYear
+
+    if(userYears <= 21){
+      result = false
+    }
+
+    return result
+
+  }
+
   function validationNotification(result, input, massage){
     var $input = $(input)
     if(result){
@@ -234,10 +254,6 @@
     }
 
     $input.parent().find('.invalid-feedback').text(massage)
-  }
-
-  function isAdulthood(value){
-
   }
 
   /*
