@@ -11,6 +11,7 @@
    */
 
   var currentTab = 0;
+  var clone = {}
 
   /*
    *  Events
@@ -20,8 +21,6 @@
     showStep(currentTab);
 
     initInputValidation();
-
-    cloneDataFromJson();
   }
 
   $(window).ready(onLoad());
@@ -33,7 +32,6 @@
   self.onClickStepControllButton = function(step){
     var allFormSteps = $(".steps_form_item");
 
-    //todo: will be better if 'formStepInputs' was an array
     var formStepInputs = $(".steps_form_item.active").find('.input_validated')
 
     var test = isValidInputs(formStepInputs)
@@ -85,9 +83,10 @@
     var validType = ''
     var minValue = ''
     var maxValue = ''
-    var $targetInput = ''
     var message = ""
     var validationResult = true
+
+
 
     if($input.attr('data-validation-type')){
       validType = $input.attr('data-validation-type')
@@ -95,7 +94,7 @@
       maxValue = +$input.attr('data-max-value')
     }
 
-    var inputValue = +$input.val()
+    var inputValue = $input.val()
 
     if(inputValue == ""){
       message = "This field is required"
@@ -105,22 +104,26 @@
       return
     }
 
-    if(validType == "number" && inputValue != ""){
+    if(validType == "number"){
+      inputValue = +$input.val()
+
       if(isNaN(inputValue)){
         message = "The value of this field must be a number"
         validationResult = false
-        validationNotification(false, $targetInput, message)
+        validationNotification(false, $input, message)
+        return
+      }
+
+      if(inputValue < minValue || inputValue > maxValue){
+        message = "The value of this field must be less then "+ maxValue +" and more then "+ minValue +""
+
+        validationResult = false
+        validationNotification(false, $input, message)
         return
       }
     }
 
-    if(inputValue < minValue || inputValue > maxValue){
-      message = "The value of this field must be less then "+ maxValue +" and more then "+ minValue +""
 
-      validationResult = false
-      validationNotification(false, $targetInput, message)
-      return
-    }
 
     return validationResult
   }
@@ -140,30 +143,7 @@
    * Methods
    */
 
-  function cloneDataFromJson() {
-    $.getJSON('teachers.json', function(data) {
-      for (var key in data){
-        clone[ key ] = data[ key ];
-      }
-    });
-  }
 
-  function getDataToModal(modalId, teacher) {
-    var modal = $('#' + modalId);
-    var teacherId = teacher;
-    var NameBlock = modal.find('[data-name]');
-    var DescriptionBlock = modal.find('[data-description]');
-    var CertificatesBlock = modal.find('[data-certificates]');
-
-    NameBlock.html(clone[ teacherId ].name);
-    DescriptionBlock.html(clone[ teacherId ].description);
-
-    for (var i = 0; i < clone[ teacherId ].certificates.length; i++){
-      CertificatesBlock.append('<div class="col-md-6"><img src="' + clone[ teacherId ].certificates[ i ] + '" alt=""></div>');
-    }
-
-    showCloneModal(modal);
-  }
 
   //private
   function showStep(step) {
@@ -184,38 +164,16 @@
   }
 
   function correctControlsButtons(step){
-    if (step == 0) {
-      $("#prev_step").addClass('hidden');
-    } else {
+    if (step > 0) {
       $("#prev_step").removeClass('hidden');
+    } else {
+      $("#prev_step").addClass('hidden');
     }
     if (step == (step.length - 1)) {
       $("#next_step").text('Submit');
     } else {
       $("#next_step").text('Next');
     }
-  }
-
-  function validateForm() {
-
-    // This function deals with validation of the form fields
-    var valid = true;
-    var allFormSteps = $(".steps_form_item");
-    var stepItemInputs = $(allFormSteps[currentTab]).find("input");
-    // A loop that checks every input field in the current tab:
-    for (var i = 0; i < stepItemInputs.length; i++) {
-      if (stepItemInputs[i].required && stepItemInputs[i].value == "") {
-        // add an "invalid" class to the field:
-        $(stepItemInputs[i]).addClass("is-invalid");
-        // and set the current valid status to false
-        valid = false;
-      }
-    }
-    // If the valid status is true, mark the step as finished and valid:
-    if (valid) {
-      $(allFormSteps[currentTab]).addClass("done");
-    }
-    return valid; // return the valid status
   }
 
   function fixStepIndicator(step) {

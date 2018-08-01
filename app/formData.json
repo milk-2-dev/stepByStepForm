@@ -1,10 +1,11 @@
 {
-  "teacher1" : {
-    "name" : "",
-    "description" : "",
-    "certificates" : [
-      ""
-    ]
+  "formData" : {
+    "summ" : "555",
+    "term" : "3",
+    "inn" : "1234567890",
+    "surname" : "Ivanov",
+    "name" : "Ivan",
+    "city" : "Kyiv"
   }
 }
 

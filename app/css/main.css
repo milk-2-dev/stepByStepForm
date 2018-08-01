@@ -333,8 +333,6 @@ input {
 .input_block {
   margin-bottom: 30px;
   position: relative; }
-  .input_block:last-child {
-    margin-bottom: 0; }
 
 .input_validated ~ .invalid-feedback {
   display: none;

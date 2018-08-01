@@ -24,7 +24,7 @@
     <section id="form_container">
         <div class="container">
             <h1 class="text-center">
-                Numeric Wizard Built with Flexbox
+                this is a step-by-step form
             </h1>
 
             <div class="form_wrapper">
@@ -53,7 +53,8 @@
                                 <div class="steps_form_item active">
                                     <div class="form_group">
                                         <div class="input_block">
-                                            <input class="input_validated"
+                                            <input id="summ"
+                                                   class="input_validated"
                                                    type="text"
                                                    placeholder="Enter you sum"
                                                    required
@@ -66,10 +67,14 @@
                                         </div>
 
                                         <div class="input_block">
-                                            <input class="input_validated" type="text" placeholder="Enter date" required
+                                            <input id="term"
+                                                   class="input_validated"
+                                                   type="text"
+                                                   placeholder="Enter term"
+                                                   required
                                                    data-validation-type="number"
                                                    data-min-value="1"
-                                                   data-max-value="10000">
+                                                   data-max-value="12">
                                             <div class="invalid-feedback">
                                                 This field is required and must be only a number
                                             </div>
@@ -80,19 +85,47 @@
                                 <div class="steps_form_item">
                                     <div class="form_group">
                                         <div class="input_block">
-                                            <input type="text" placeholder="Enter you INN">
+                                            <input id="inn"
+                                                   class="input_validated"
+                                                   type="text"
+                                                   placeholder="Enter you INN"
+                                                   required
+                                                   data-validation-type="number"
+                                                   data-min-value="10"
+                                                   data-max-value="10">
+                                            <div class="invalid-feedback">
+                                                This field is required and must be only a number
+                                            </div>
                                         </div>
 
                                         <div class="input_block">
-                                            <input type="text" placeholder="Enter you surname">
+                                            <input id="surname"
+                                                   class="input_validated"
+                                                   type="text"
+                                                   placeholder="Enter you surname">
+                                            <div class="invalid-feedback">
+                                                This field is required
+                                            </div>
                                         </div>
 
                                         <div class="input_block">
-                                            <input type="text" placeholder="Enter you name">
+                                            <input id="name"
+                                                   class="input_validated"
+                                                   type="text"
+                                                   placeholder="Enter you name">
+                                            <div class="invalid-feedback">
+                                                This field is required
+                                            </div>
                                         </div>
 
                                         <div class="input_block">
-                                            <input type="text" placeholder="Enter you city">
+                                            <input id="city"
+                                                   class="input_validated"
+                                                   type="text"
+                                                   placeholder="Enter you city">
+                                            <div class="invalid-feedback">
+                                                This field is required
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -113,7 +146,7 @@
                     </form>
 
                     <div class="steps_form_controls">
-                        <button class="button bg_green" id="prev_step" onclick="controllerBase.onClickStepControllButton(-1)">previous step</button>
+                        <button class="button bg_green hidden" id="prev_step" onclick="controllerBase.onClickStepControllButton(-1)">previous step</button>
                         <button class="button bg_green" id="next_step" onclick="controllerBase.onClickStepControllButton(1)">next step</button>
                     </div>
                 </div>
