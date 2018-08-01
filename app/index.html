@@ -90,9 +90,7 @@
                                                    type="text"
                                                    placeholder="Enter you INN"
                                                    required
-                                                   data-validation-type="number"
-                                                   data-min-value="10"
-                                                   data-max-value="10">
+                                                   data-validation-type="inn">
                                             <div class="invalid-feedback">
                                                 This field is required and must be only a number
                                             </div>
@@ -102,7 +100,8 @@
                                             <input id="surname"
                                                    class="input_validated"
                                                    type="text"
-                                                   placeholder="Enter you surname">
+                                                   placeholder="Enter you surname"
+                                                   required>
                                             <div class="invalid-feedback">
                                                 This field is required
                                             </div>
@@ -112,7 +111,8 @@
                                             <input id="name"
                                                    class="input_validated"
                                                    type="text"
-                                                   placeholder="Enter you name">
+                                                   placeholder="Enter you name"
+                                                   required>
                                             <div class="invalid-feedback">
                                                 This field is required
                                             </div>
@@ -122,7 +122,8 @@
                                             <input id="city"
                                                    class="input_validated"
                                                    type="text"
-                                                   placeholder="Enter you city">
+                                                   placeholder="Enter you city"
+                                                   required>
                                             <div class="invalid-feedback">
                                                 This field is required
                                             </div>
@@ -130,16 +131,8 @@
                                     </div>
                                 </div>
 
-                                <div class="steps_form_item">
-                                    <div class="form_group">
-                                        <div class="input_block">
-                                            <input type="text" placeholder="Enter you summ">
-                                        </div>
-
-                                        <div class="input_block">
-                                            <input type="text" placeholder="Enter date">
-                                        </div>
-                                    </div>
+                                <div class="steps_form_item last_step_form_item" id="last_step">
+                                    <ul></ul>
                                 </div>
                             </div>
                         </div>

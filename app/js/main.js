@@ -11,7 +11,7 @@
    */
 
   var currentTab = 0;
-  var clone = {}
+  var formData = {}
 
   /*
    *  Events
@@ -31,24 +31,40 @@
 
   self.onClickStepControllButton = function(step){
     var allFormSteps = $(".steps_form_item");
+    var allFormStepsLength = allFormSteps.length;
 
     var formStepInputs = $(".steps_form_item.active").find('.input_validated')
 
-    var test = isValidInputs(formStepInputs)
-
-    if (!test) return false;
+    if (!isValidInputs(formStepInputs)) return false;
 
     $(allFormSteps[currentTab]).removeClass("active");
 
     currentTab = currentTab + step;
-
-    if (currentTab >= allFormSteps.length) {
-
+    if (currentTab >= allFormStepsLength) {
       $("#form").submit();
       return false;
     }
 
+    if(currentTab >= (allFormStepsLength - 1)){
+      showAllData()
+      changeButtonNext('submit')
+    }else{
+      changeButtonNext('next')
+    }
+
     showStep(currentTab);
+  }
+
+  function showAllData(){
+    var $lastStepBlock = $('#last_step ul')
+    $lastStepBlock.html('')
+
+    for(var key in formData){
+      var item = '<li><span class="title">'+ key +':</span>'+ formData[key] +'</li>'
+
+      $lastStepBlock.append(item)
+
+    }
   }
 
   function initInputValidation(){
@@ -66,13 +82,16 @@
   function isValidInputs(inputsInStep){
     var isValid = true
 
-
     for (var i = 0; i < inputsInStep.length; i++) {
       var $item = $(inputsInStep[i])
-      var test = validateInput($item)
 
-      if(!test){
+      if(!validateInput($item)){
         isValid = false
+      }else{
+        var $itemId = $item[0].id
+        var $itemValue = $item.val()
+
+        formData[$itemId] = $itemValue
       }
     }
     return isValid
@@ -81,22 +100,20 @@
   function validateInput(input){
     var $input = $(input)
     var validType = ''
-    var minValue = ''
-    var maxValue = ''
-    var message = ""
-    var validationResult = true
-
-
+    var isRequired = false;
+    var validationResult = true;
 
     if($input.attr('data-validation-type')){
       validType = $input.attr('data-validation-type')
-      minValue = +$input.attr('data-min-value')
-      maxValue = +$input.attr('data-max-value')
+    }
+
+    if($input.attr('required')){
+      isRequired = true
     }
 
     var inputValue = $input.val()
 
-    if(inputValue == ""){
+    if(inputValue == "" && isRequired){
       message = "This field is required"
       validationResult = false
 
@@ -105,16 +122,22 @@
     }
 
     if(validType == "number"){
-      inputValue = +$input.val()
+      var minValue = ''
+      var maxValue = ''
+      var message = ""
 
-      if(isNaN(inputValue)){
-        message = "The value of this field must be a number"
+      if(!isValueNumber(inputValue) && !isValueInteger(inputValue)){
+        message = "The value of this field must be an integer number"
         validationResult = false
         validationNotification(false, $input, message)
         return
+      }else{
+        inputValue = +inputValue
+        minValue = +$input.attr('data-min-value')
+        maxValue = +$input.attr('data-max-value')
       }
 
-      if(inputValue < minValue || inputValue > maxValue){
+      if(!isValueInBeth(minValue, maxValue, inputValue)){
         message = "The value of this field must be less then "+ maxValue +" and more then "+ minValue +""
 
         validationResult = false
@@ -123,9 +146,75 @@
       }
     }
 
+    if(validType == "inn"){
+      if(!isValueNumber(inputValue) && !isValueInteger(inputValue)){
+        message = "The value of this field must be an integer number"
+        validationResult = false
+        validationNotification(false, $input, message)
+        return
+      }else{
+        inputValue = +inputValue
+      }
 
+      if(!isAdulthood(inputValue)){
+        message = "Sorry, your age must be at least 21 years old"
+        validationResult = false
+        validationNotification(false, $input, message)
+        return
+      }
+
+      if(!isValueLength(inputValue)){
+        message = "The value length of this field must be 10 digits"
+
+        validationResult = false
+        validationNotification(false, $input, message)
+        return
+      }
+    }
 
     return validationResult
+  }
+
+  function isValueNumber(value){
+    var valueToNumber = +value;
+    var result = true;
+
+    if(isNaN(valueToNumber)){
+      result = false
+    }
+
+    return result
+  }
+
+  function isValueInBeth(minValue, maxValue, value){
+    var result = true
+
+    if(value < minValue || value > maxValue){
+      result = false
+    }
+
+    return result
+  }
+
+  function isValueInteger(value){
+    var result = false
+
+    if(Number.isInteger(value)){
+      result = true
+    }
+
+    return result
+  }
+
+  function isValueLength(value){
+    var result = false
+    var valueLength = Math.floor( Math.log(value) / Math.LN10 ) + 1
+
+    if(valueLength == 10){
+      result = true
+    }
+
+    return result
   }
 
   function validationNotification(result, input, massage){
@@ -134,16 +223,26 @@
       return
     }
 
-    $input.val('')
-    $input.addClass('is-invalid')
+    if($input.hasClass('is-invalid')){
+      $input.removeClass('is-invalid')
+
+      setTimeout(function(){
+        $input.addClass('is-invalid')
+      }, 1)
+    }else{
+      $input.addClass('is-invalid')
+    }
+
     $input.parent().find('.invalid-feedback').text(massage)
+  }
+
+  function isAdulthood(value){
+
   }
 
   /*
    * Methods
    */
-
-
 
   //private
   function showStep(step) {
@@ -158,21 +257,30 @@
     var translateCoficient = 100*step;
     stepsStage.css('transform', 'translate(-'+translateCoficient+'%, 0)');
 
-    correctControlsButtons(step)
+    toggleButtonPrev(step)
 
     fixStepIndicator(step)
   }
 
-  function correctControlsButtons(step){
+  function toggleButtonPrev(step){
     if (step > 0) {
       $("#prev_step").removeClass('hidden');
     } else {
       $("#prev_step").addClass('hidden');
     }
-    if (step == (step.length - 1)) {
-      $("#next_step").text('Submit');
-    } else {
-      $("#next_step").text('Next');
+  }
+
+  function changeButtonNext(buttonText){
+    var $buttonNext =  $("#next_step");
+
+    if (buttonText == 'submit') {
+      $buttonNext.text('submit');
+      $buttonNext.removeClass('bg_green');
+      $buttonNext.addClass('bg_blue');
+    }else if($buttonNext.hasClass('bg_blue')){
+      $buttonNext.text('next');
+      $buttonNext.removeClass('bg_blue');
+      $buttonNext.addClass('bg_green');
     }
   }
 
