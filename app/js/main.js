@@ -18,6 +18,9 @@
    */
 
   function onLoad() {
+    checkUrlParam();
+    initStepsProgressNav();
+    onClickPropgressNav();
     showStep(currentTab);
     initInputValidation();
     takeCity();
@@ -42,7 +45,10 @@
 
     currentTab = currentTab + step;
     if (currentTab >= allFormStepsLength) {
-      $("#form").submit();
+      //$("#form").submit();
+
+      self.onSubmitForm()
+
       return false;
     }
 
@@ -58,29 +64,60 @@
   }
 
   self.onSubmitForm = function() {
-    debugger
+
 
     $.ajax({
-      url:      'formEndpoint.php', //url страницы (action_ajax_form.php)
-      type:     "POST", //метод отправки
-      dataType: "html", //формат данных
-      data:     formData,  // Сеарилизуем объект
-      success:  function(response) { //Данные отправлены успешно
+      url:      'thk.html',
+      type:     "POST",
+      dataType: "html",
+      data:     formData,
+      success:  function(response) {
+        debugger
         result = $.parseJSON(response);
 
-        debugger
+        window.location.href = './thk.html';
       },
-      error:    function(response) { // Данные не отправлены
-        debugger
+      error:    function(response) {
+debugger
       }
     });
 
     return false;
   }
 
+  function onClickPropgressNav(){
+    $('#steps_progress_bar .step_number').on('click', function(e){
+
+      var item = e.target
+      var itemIndex = $(item).attr('data-index')
+
+      showStep(itemIndex)
+    })
+  }
+
   /*
    * Methods
    */
+
+  function initStepsProgressNav(){
+    var allItems = $('#steps_progress_bar .steps_progress_bar_item')
+
+    for(var i = 0; i<allItems.length; i++){
+      $(allItems[i]).find('.step_number').attr('data-index', i)
+    }
+  }
+
+  function checkUrlParam(){
+    var url = window.location
+    var urlHash = url.hash
+
+    if(urlHash){
+      var formStepNumber = urlHash.substr(urlHash.length - 1)
+
+      currentTab = +formStepNumber - 1
+
+    }
+  }
 
   function defaultData() {
     fetch('./formData.json').then(function(response) {
@@ -98,12 +135,12 @@
   }
 
   function putDefaultDataToForm() {
-    debugger
+
     var form = $('#form')
     var formInputs = form.find('input')
 
     formInputs.each(function() {
-      debugger
+
       var $this = $(this)
       var inputId = $this[ 0 ].id
 
