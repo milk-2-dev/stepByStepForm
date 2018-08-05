@@ -6,7 +6,18 @@
     <meta name=viewport content="initial-scale=1.0, maximum-scale=1, user-scalable=no" width=device-width>
     <title>Step by step form</title>
     <link rel="stylesheet" href="./css/libs.min.css">
+    <link rel="stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.10.3/themes/flick/jquery-ui.css" />
     <link rel="stylesheet" href="./css/main.css">
+
+    <style type="text/css">
+        .ui-menu .ui-menu-item a,.ui-menu .ui-menu-item a.ui-state-hover, .ui-menu .ui-menu-item a.ui-state-active {
+            font-weight: normal;
+            margin: -1px;
+            text-align:left;
+            font-size:14px;
+        }
+        /*.ui-autocomplete-loading { background: white url("/images/ui-anim_basic_16x16.gif") right center no-repeat; }*/
+    </style>
 
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -47,7 +58,7 @@
                 </ol>
 
                 <div class="steps_form_container">
-                    <form id="form" action="">
+                    <form id="form" action="" onsubmit="controllerBase.onSubmitForm()" method="post">
                         <div class="steps_form_stage-outer">
                             <div class="steps_form_stage">
                                 <div class="steps_form_item active">
@@ -120,7 +131,7 @@
 
                                         <div class="input_block">
                                             <input id="city"
-                                                   class="input_validated"
+                                                   class="input_validated ff_elem"
                                                    type="text"
                                                    placeholder="Enter you city"
                                                    required>
@@ -156,6 +167,9 @@
 </footer>
 </body>
 
-<script src="./js/libs.min.js"></script>
+<!--<script src="./js/libs.min.js"></script>-->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script src="./js/main.js"></script>
+
 </html>
