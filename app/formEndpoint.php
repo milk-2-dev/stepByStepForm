@@ -1,15 +1,10 @@
 <?php
 
-if (isset($_POST["name"]) && isset($_POST["phonenumber"]) ) {
+if (isset($_POST)) {
 
-	// Формируем массив для JSON ответа
-    $result = array(
-    	'name' => $_POST["name"],
-    	'phonenumber' => $_POST["phonenumber"]
-    );
+    $response = 'Thanks, dear '.$_POST["surname"].' '.$_POST["name"].', we are very glad';
 
-    // Переводим массив в JSON
-    echo json_encode($result);
+    echo json_encode($response);
 }
 
 ?>

@@ -44,6 +44,15 @@
     $(allFormSteps[ currentTab ]).removeClass("active");
 
     currentTab = currentTab + step;
+
+      if (currentTab >= (allFormStepsLength - 1)) {
+          showAllData()
+          changeButtonNext('submit')
+      }
+      else {
+          changeButtonNext('next')
+      }
+
     if (currentTab >= allFormStepsLength) {
       //$("#form").submit();
 
@@ -52,37 +61,43 @@
       return false;
     }
 
-    if (currentTab >= (allFormStepsLength - 1)) {
-      showAllData()
-      changeButtonNext('submit')
-    }
-    else {
-      changeButtonNext('next')
-    }
-
     showStep(currentTab);
   }
 
   self.onSubmitForm = function() {
-
+    var data = 'name='+ formData.name + '&surname='+ formData.surname + '&summ=' + formData.summ + '&term=' + formData.term + '&inn=' + formData.inn + '&city=' + formData.city
 
     $.ajax({
-      url:      'thk.html',
+      url:      'formEndpoint.php',
       type:     "POST",
       dataType: "html",
-      data:     formData,
-      success:  function(response) {
-        debugger
-        result = $.parseJSON(response);
+      data:     data,
+        beforeSend: function(){
+            $('#preloader').addClass('active');
+        },
+        success:  function(response) {
+            $('#preloader').removeClass('active');
+          var result = $.parseJSON(response);
 
-        window.location.href = './thk.html';
+          $('#notification').html('<p>'+ result +'</p>');
+          $('#notification').addClass('active success');
+
+          setTimeout(function(){
+              $('#notification').removeClass('active');
+          }, 1500)
+
       },
       error:    function(response) {
-debugger
+          $('#preloader').removeClass('active');
+          var result = $.parseJSON(response);
+
+          $('#notification').html('<p>'+ result +'</p>');
+          $('#notification').addClass('active error');
+          setTimeout(function(){
+              $('#notification').removeClass('active');
+          }, 2500)
       }
     });
-
-    return false;
   }
 
   function onClickPropgressNav(){
