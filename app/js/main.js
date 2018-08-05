@@ -19,8 +19,9 @@
 
   function onLoad() {
     showStep(currentTab);
-
     initInputValidation();
+    takeCity();
+    defaultData();
   }
 
   $(window).ready(onLoad());
@@ -29,7 +30,7 @@
    * Events
    */
 
-  self.onClickStepControllButton = function(step){
+  self.onClickStepControllButton = function(step) {
     var allFormSteps = $(".steps_form_item");
     var allFormStepsLength = allFormSteps.length;
 
@@ -37,7 +38,7 @@
 
     if (!isValidInputs(formStepInputs)) return false;
 
-    $(allFormSteps[currentTab]).removeClass("active");
+    $(allFormSteps[ currentTab ]).removeClass("active");
 
     currentTab = currentTab + step;
     if (currentTab >= allFormStepsLength) {
@@ -45,75 +46,215 @@
       return false;
     }
 
-    if(currentTab >= (allFormStepsLength - 1)){
+    if (currentTab >= (allFormStepsLength - 1)) {
       showAllData()
       changeButtonNext('submit')
-    }else{
+    }
+    else {
       changeButtonNext('next')
     }
 
     showStep(currentTab);
   }
 
-  function showAllData(){
+  self.onSubmitForm = function() {
+    debugger
+
+    $.ajax({
+      url:      'formEndpoint.php', //url страницы (action_ajax_form.php)
+      type:     "POST", //метод отправки
+      dataType: "html", //формат данных
+      data:     formData,  // Сеарилизуем объект
+      success:  function(response) { //Данные отправлены успешно
+        result = $.parseJSON(response);
+
+        debugger
+      },
+      error:    function(response) { // Данные не отправлены
+        debugger
+      }
+    });
+
+    return false;
+  }
+
+  /*
+   * Methods
+   */
+
+  function defaultData() {
+    fetch('./formData.json').then(function(response) {
+      return response.json();
+    }).then(function(data) {
+
+      for (var key in data.formData){
+        formData[ key ] = data.formData[ key ];
+      }
+
+      putDefaultDataToForm()
+    }).catch(function(err) {
+      return false
+    });
+  }
+
+  function putDefaultDataToForm() {
+    debugger
+    var form = $('#form')
+    var formInputs = form.find('input')
+
+    formInputs.each(function() {
+      debugger
+      var $this = $(this)
+      var inputId = $this[ 0 ].id
+
+      $this.val(formData[ inputId ])
+    })
+  }
+
+  //private
+  function showStep(step) {
+    var stepsStage = $('.steps_form_stage');
+    var allFormSteps = $('.steps_form_item');
+
+    for (var i = 0; i < allFormSteps.length; i++){
+      $(allFormSteps[ i ]).removeClass('active')
+    }
+    $(allFormSteps[ step ]).addClass('active');
+
+    var translateCoficient = 100 * step;
+    stepsStage.css('transform', 'translate(-' + translateCoficient + '%, 0)');
+
+    toggleButtonPrev(step)
+
+    changrStepIndicator(step)
+  }
+
+  function toggleButtonPrev(step) {
+    if (step > 0) {
+      $("#prev_step").removeClass('hidden');
+    }
+    else {
+      $("#prev_step").addClass('hidden');
+    }
+  }
+
+  function changeButtonNext(buttonText) {
+    var $buttonNext = $("#next_step");
+
+    if (buttonText == 'submit') {
+      $buttonNext.text('submit');
+      $buttonNext.removeClass('bg_green');
+      $buttonNext.addClass('bg_blue');
+    }
+    else if ($buttonNext.hasClass('bg_blue')) {
+      $buttonNext.text('next');
+      $buttonNext.removeClass('bg_blue');
+      $buttonNext.addClass('bg_green');
+    }
+  }
+
+  function changrStepIndicator(step) {
+    var allProgressBarSteps = $(".steps_progress_bar_item");
+
+    for (var i = 0; i < allProgressBarSteps.length; i++){
+
+      $(allProgressBarSteps[ i ]).removeClass("active");
+
+      if (i < step) {
+        $(allProgressBarSteps[ i ]).addClass("done");
+      }
+    }
+
+    $(allProgressBarSteps[ step ]).addClass("active");
+  }
+
+  function takeCity() {
+    $("#city").autocomplete({
+      source:    function(request, response) {
+        jQuery.getJSON(
+          "http://gd.geobytes.com/AutoCompleteCity?callback=?&q=" + request.term,
+          function(data) {
+            response(data);
+          }
+        );
+      },
+      minLength: 3,
+      select:    function(event, ui) {
+        var selectedObj = ui.item;
+        $("#city").val(selectedObj.value);
+        return false;
+      },
+      open:      function() {
+        $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+      },
+      close:     function() {
+        $(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+      }
+    });
+
+    $("#city").autocomplete("option", "delay", 100);
+  }
+
+  function showAllData() {
     var $lastStepBlock = $('#last_step ul')
     $lastStepBlock.html('')
 
-    for(var key in formData){
-      var item = '<li><span class="title">'+ key +':</span>'+ formData[key] +'</li>'
+    for (var key in formData){
+      var item = '<li><span class="title">' + key + ':</span>' + formData[ key ] + '</li>'
 
       $lastStepBlock.append(item)
 
     }
   }
 
-  function initInputValidation(){
+  function initInputValidation() {
     var $input = $('.input_validated')
 
-    $input.on('focus', function(e){
+    $input.on('focus', function(e) {
       $(e.target).removeClass('is-invalid')
     })
 
-    $input.on('blur', function(e){
+    $input.on('blur', function(e) {
       validateInput(e.target)
     })
   }
 
-  function isValidInputs(inputsInStep){
+  function isValidInputs(inputsInStep) {
     var isValid = true
 
-    for (var i = 0; i < inputsInStep.length; i++) {
-      var $item = $(inputsInStep[i])
+    for (var i = 0; i < inputsInStep.length; i++){
+      var $item = $(inputsInStep[ i ])
 
-      if(!validateInput($item)){
+      if (!validateInput($item)) {
         isValid = false
-      }else{
-        var $itemId = $item[0].id
+      }
+      else {
+        var $itemId = $item[ 0 ].id
         var $itemValue = $item.val()
 
-        formData[$itemId] = $itemValue
+        formData[ $itemId ] = $itemValue
       }
     }
     return isValid
   }
 
-  function validateInput(input){
+  function validateInput(input) {
     var $input = $(input)
     var validType = ''
     var isRequired = false;
     var validationResult = true;
 
-    if($input.attr('data-validation-type')){
+    if ($input.attr('data-validation-type')) {
       validType = $input.attr('data-validation-type')
     }
 
-    if($input.attr('required')){
+    if ($input.attr('required')) {
       isRequired = true
     }
 
     var inputValue = $input.val()
 
-    if(inputValue == "" && isRequired){
+    if (inputValue == "" && isRequired) {
       message = "This field is required"
       validationResult = false
 
@@ -121,24 +262,24 @@
       return
     }
 
-    if(validType == "number"){
+    if (validType == "number") {
       var minValue = ''
       var maxValue = ''
       var message = ""
 
-      if(!isValueNumber(inputValue) && !isValueInteger(inputValue)){
+      if (!isValueNumber(inputValue) && !isValueInteger(inputValue)) {
         message = "The value of this field must be an integer number"
         validationResult = false
         validationNotification(false, $input, message)
         return
-      }else{
-        inputValue = +inputValue
+      }
+      else {
         minValue = +$input.attr('data-min-value')
         maxValue = +$input.attr('data-max-value')
       }
 
-      if(!isValueInBeth(minValue, maxValue, inputValue)){
-        message = "The value of this field must be less then "+ maxValue +" and more then "+ minValue +""
+      if (!isValueInBeth(minValue, maxValue, inputValue)) {
+        message = "The value of this field must be less then " + maxValue + " and more then " + minValue + ""
 
         validationResult = false
         validationNotification(false, $input, message)
@@ -146,24 +287,22 @@
       }
     }
 
-    if(validType == "inn"){
-      if(!isValueNumber(inputValue) && !isValueInteger(inputValue)){
+    if (validType == "inn") {
+      if (!isValueNumber(inputValue) && !isValueInteger(inputValue)) {
         message = "The value of this field must be an integer number"
         validationResult = false
         validationNotification(false, $input, message)
         return
-      }else{
-        inputValue = +inputValue
       }
 
-      if(!isAdulthood(inputValue)){
+      if (!isAdulthood(inputValue)) {
         message = "Sorry, your age must be at least 21 years old"
         validationResult = false
         validationNotification(false, $input, message)
         return
       }
 
-      if(!isValueLength(inputValue)){
+      if (!isValueLength(inputValue)) {
         message = "The value length of this field must be 10 digits"
 
         validationResult = false
@@ -175,61 +314,63 @@
     return validationResult
   }
 
-  function isValueNumber(value){
+  function isValueNumber(value) {
     var valueToNumber = +value;
     var result = true;
 
-    if(isNaN(valueToNumber)){
+    if (isNaN(valueToNumber) && !isFinite(valueToNumber)) {
       result = false
     }
 
     return result
   }
 
-  function isValueInBeth(minValue, maxValue, value){
+  function isValueInBeth(minValue, maxValue, value) {
     var result = true
+    value = +value
 
-    if(value < minValue || value > maxValue){
+
+    if (value < minValue || value > maxValue) {
       result = false
     }
 
     return result
   }
 
-  function isValueInteger(value){
+  function isValueInteger(value) {
     var result = false
 
-    if(Number.isInteger(value)){
+    if (Number.isInteger(value)) {
       result = true
     }
 
     return result
   }
 
-  function isValueLength(value){
+  function isValueLength(value) {
     var result = false
-    var valueLength = Math.floor( Math.log(value) / Math.LN10 ) + 1
+    //var valueLength = Math.floor( Math.log(value) / Math.LN10 ) + 1
 
-    if(valueLength == 10){
+    if (value.length === 10) {
       result = true
     }
 
     return result
   }
 
-  function isAdulthood(value){
+  function isAdulthood(value) {
     var result = true
     var currentDate = new Date();
     var currentYear = currentDate.getFullYear();
-    var valueToString = ''+value
-    var innDayCount = valueToString.substring(0, 5) * 1 - 1;
-    var startDate = new Date(1900,00,01);
+    //var valueToString = ''+value
+    var innDayCount = value.substring(0, 5) * 1 - 1;
+    var startDate = new Date(1900, 00, 01);
     startDate.setDate(startDate.getDate() + innDayCount);
 
     var birthYear = startDate.getFullYear()
     var userYears = currentYear - birthYear
 
-    if(userYears <= 21){
+    if (userYears <= 21) {
       result = false
     }
 
@@ -237,82 +378,24 @@
 
   }
 
-  function validationNotification(result, input, massage){
+  function validationNotification(result, input, massage) {
     var $input = $(input)
-    if(result){
+    if (result) {
       return
     }
 
-    if($input.hasClass('is-invalid')){
+    if ($input.hasClass('is-invalid')) {
       $input.removeClass('is-invalid')
 
-      setTimeout(function(){
+      setTimeout(function() {
         $input.addClass('is-invalid')
       }, 1)
-    }else{
+    }
+    else {
       $input.addClass('is-invalid')
     }
 
     $input.parent().find('.invalid-feedback').text(massage)
-  }
-
-  /*
-   * Methods
-   */
-
-  //private
-  function showStep(step) {
-    var stepsStage = $('.steps_form_stage');
-    var allFormSteps = $('.steps_form_item');
-
-    for (var i = 0; i < allFormSteps.length; i++) {
-      $(allFormSteps[i]).removeClass('active')
-    }
-    $(allFormSteps[step]).addClass('active');
-
-    var translateCoficient = 100*step;
-    stepsStage.css('transform', 'translate(-'+translateCoficient+'%, 0)');
-
-    toggleButtonPrev(step)
-
-    fixStepIndicator(step)
-  }
-
-  function toggleButtonPrev(step){
-    if (step > 0) {
-      $("#prev_step").removeClass('hidden');
-    } else {
-      $("#prev_step").addClass('hidden');
-    }
-  }
-
-  function changeButtonNext(buttonText){
-    var $buttonNext =  $("#next_step");
-
-    if (buttonText == 'submit') {
-      $buttonNext.text('submit');
-      $buttonNext.removeClass('bg_green');
-      $buttonNext.addClass('bg_blue');
-    }else if($buttonNext.hasClass('bg_blue')){
-      $buttonNext.text('next');
-      $buttonNext.removeClass('bg_blue');
-      $buttonNext.addClass('bg_green');
-    }
-  }
-
-  function fixStepIndicator(step) {
-    var allProgressBarSteps = $(".steps_progress_bar_item");
-
-    for (var i = 0; i < allProgressBarSteps.length; i++) {
-
-      $(allProgressBarSteps[i]).removeClass("active");
-
-      if(i < step){
-        $(allProgressBarSteps[i]).addClass("done");
-      }
-    }
-
-    $(allProgressBarSteps[step]).addClass("active");
   }
 
 })();
